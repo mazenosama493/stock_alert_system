@@ -1,6 +1,6 @@
 
 from alerts.models import Alert
-from stocks.models import StockPrice, Stock  # assuming this stores latest prices
+from stocks.models import StockPrice, Stock
 from django.utils import timezone
 from datetime import timedelta
 from django.core.mail import send_mail
