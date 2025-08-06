@@ -1,9 +1,6 @@
 from rest_framework import permissions
 
 class IsOwnerOrReadOnly(permissions.BasePermission):
-    """
-    Custom permission to only allow owners of an alert to edit it.
-    """
 
     def has_object_permission(self, request, view, obj):
         # Read-only permissions are allowed for any request
