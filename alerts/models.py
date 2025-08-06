@@ -16,7 +16,7 @@ class Alert(models.Model):
     stock_symbol = models.CharField(max_length=10,validators=[validate_stock_symbol])
     alert_type = models.CharField(max_length=10, choices=ALERT_TYPE_CHOICES)
     threshold_price = models.FloatField(null=True, blank=True)
-    comparison = models.CharField(max_length=5, choices=[('gt', '>'), ('lt', '<')])
+    comparison = models.CharField(max_length=5, choices=[('gt', '>'), ('lt', '<')],)
     duration_minutes = models.IntegerField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)

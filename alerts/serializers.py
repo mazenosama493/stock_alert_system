@@ -8,15 +8,23 @@ class AlertSerializer(serializers.ModelSerializer):
         read_only_fields = ['user']
     def validate(self, data):
         alert_type = data.get('alert_type')
-        duration = data.get('duration_minutes')
+        duration_minutes = data.get('duration_minutes')
 
-        if alert_type == 'threshold' and duration is not None:
-            raise serializers.ValidationError({
-                'duration_minutes': 'Must be null when alert_type is "threshold".'
-            })
-        elif alert_type == 'duration' and duration is None:
-            raise serializers.ValidationError({
-                'duration_minutes': 'Must not be null when alert_type is "duration".'
-            })
+
+        if alert_type == 'threshold':
+            if duration_minutes is not None:
+                raise serializers.ValidationError({
+                    'duration_minutes': 'Must be null for threshold alerts.'
+                })
+
+        elif alert_type == 'duration':
+            if duration_minutes is None:
+                raise serializers.ValidationError({
+                    'duration_minutes': 'This field is required for duration alerts.'
+                })
+            elif duration_minutes <=0:
+                raise serializers.ValidationError({
+                    'duration_minutes': 'Duration must be greater than 0 for duration alerts.'
+                })
 
         return data
