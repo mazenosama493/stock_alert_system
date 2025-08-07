@@ -32,7 +32,7 @@ API_KEY = os.getenv('API_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -134,7 +134,10 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -173,16 +176,16 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 
 
-from celery.schedules import crontab
+from celery.schedules import schedule
 
 CELERY_BEAT_SCHEDULE = {
-    'fetch-every-1-mins': {
+    'fetch-every-10-seconds': {
         'task': 'stocks.tasks.fetch_stock_prices_task',
-        'schedule': crontab(minute='*/1'),
+        'schedule': schedule(run_every=10.0),  # run every 10 seconds
     },
     'check-alerts-every-1-minute': {
         'task': 'alerts.tasks.check_alerts_task',
-        'schedule': crontab(minute='*/1'),
+        'schedule': schedule(run_every=60.0),  # every 1 minute
     },
 }
 

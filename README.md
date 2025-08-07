@@ -79,9 +79,25 @@ commands.txt   # Celery commands
 
 This project uses a Redis server running in a Docker container as the broker for Celery and as the communication medium between the Django server and Celery Background tasks.
 
+To start Redis with Docker:## Redis & Docker
+
+This project uses a Redis server running in a Docker container as the broker for Celery and as the communication medium between the Django server and Celery Background tasks.
+
 To start Redis with Docker:
 ```sh
-docker run -d -p 6379:6379 --name stock_alert_redis redis
+docker run -d -p 6379:6379 --name redis
+```
+Make sure your `.env` and `core/settings.py` point Celery to this Redis instance.
+
+## Stock Price Data Source
+
+This project uses the [Financial Modeling Prep API](https://financialmodelingprep.com/) to fetch real-time stock price data.  
+You must set your Financial Modeling Prep API key in the `.env` file for stock price updates to work.
+
+## API Endpoints
+// ...existing
+```sh
+docker run -d -p 6379:6379 --name redis
 ```
 Make sure your `.env` and `core/settings.py` point Celery to this Redis instance.
 

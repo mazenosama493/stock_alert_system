@@ -9,6 +9,12 @@ class AlertSerializer(serializers.ModelSerializer):
     def validate(self, data):
         alert_type = data.get('alert_type')
         duration_minutes = data.get('duration_minutes')
+        threshold_price = data.get('threshold_price')
+
+        if threshold_price<0:
+            raise serializers.ValidationError({
+                'threshold_price': 'Threshold price must be positive number.'
+            })
 
 
         if alert_type == 'threshold':

@@ -18,7 +18,7 @@ class Alert(models.Model):
     threshold_price = models.FloatField(null=True, blank=True)
     comparison = models.CharField(max_length=5, choices=[('gt', '>'), ('lt', '<')],)
     duration_minutes = models.IntegerField(null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=timezone.now)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):

@@ -32,8 +32,6 @@ def check_alerts():
 
         # Duration check using created_at as fixed reference
         elif alert.alert_type == 'duration':
-            now = timezone.now()
-            timer=alert.created_at
             duration = timedelta(minutes=alert.duration_minutes)
 
             # Fetch all recent prices within the duration window
@@ -52,17 +50,18 @@ def check_alerts():
                 all_satisfied = all(p.price < alert.threshold_price for p in prices)
 
             # Check if the full duration has passed since the last reset
-            end_time =timer+duration
+            end_time =alert.created_at+duration
 
-            if all_satisfied and now >= end_time:
+            if all_satisfied and timezone.now() >= end_time:
                 trigger_alert(alert, prices.last().price)
 
-            elif not all_satisfied:
-                # Reset the timer
-                timer = now
+            if not all_satisfied:
+                alert.created_at = timezone.now()
+                alert.save(update_fields=['created_at'])
 
 
 
+    
 
 def trigger_alert(alert, current_price):
     alert.is_active = False
