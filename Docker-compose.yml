@@ -1,0 +1,115 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:14
+    environment:
+      POSTGRES_DB: stock_alert_system
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 01099589582m
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - stock_alert_network
+
+  redis:
+    image: redis:7
+    hostname: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - stock_alert_network
+
+  web:
+    build: .
+    command: >
+      sh -c "python manage.py migrate &&
+      python manage.py seed_stocks &&
+      python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - stock_alert_network
+
+  celery:
+    build: .
+    command: >
+      sh -c "while ! python manage.py check --database default >/dev/null 2>&1; do
+        echo 'Waiting for database...';
+        sleep 5;
+      done &&
+      while ! python -c 'import redis; redis.Redis(\"redis\").ping()' >/dev/null 2>&1; do
+        echo 'Waiting for Redis...';
+        sleep 5;
+      done &&
+      celery -A core worker --loglevel=info"
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis
+      - web
+    networks:
+      - stock_alert_network
+
+  celery-beat:
+    build: .
+    command: >
+      sh -c "while ! python manage.py check --database default >/dev/null 2>&1; do
+        echo 'Waiting for database...';
+        sleep 5;
+      done &&
+      while ! python -c 'import redis; redis.Redis(\"redis\").ping()' >/dev/null 2>&1; do
+        echo 'Waiting for Redis...';
+        sleep 5;
+      done &&
+      celery -A core beat --loglevel=info"
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis
+      - web
+    networks:
+      - stock_alert_network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  stock_alert_network:
+    driver: bridge
