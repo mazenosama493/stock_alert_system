@@ -11,7 +11,7 @@ class AlertSerializer(serializers.ModelSerializer):
         duration_minutes = data.get('duration_minutes')
         threshold_price = data.get('threshold_price')
 
-        if threshold_price<0:
+        if threshold_price is not None and threshold_price<0:
             raise serializers.ValidationError({
                 'threshold_price': 'Threshold price must be positive number.'
             })
