@@ -6,7 +6,7 @@ services:
     environment:
       POSTGRES_DB: stock_alert_system
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 01099589582m
+      POSTGRES_PASSWORD: "your password"
     ports:
       - "5432:5432"
     volumes:
